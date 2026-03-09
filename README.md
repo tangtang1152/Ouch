@@ -1,64 +1,164 @@
 # ouch
 
-A simple web tool for quickly expressing pain location during massage.
+A simple web tool for quickly expressing pain direction during a massage.
+
+## Live Demo
+
+https://tangtang1152.github.io/Ouch/
+
+(Works on mobile browsers)
+
+---
 
 ## Background
 
-During a massage session, it can be hard to immediately describe where the pain is strongest.
+During a massage session, it can be difficult to precisely describe where the pain is strongest.
 
-The painful point may shift quickly.  
-Saying things like “a little left”, “a little up”, or constantly correcting the location can interrupt the interaction and make communication inefficient.
+The painful point may shift quickly, and constantly saying  
+"left", "a bit up", "no, more right" can interrupt the massage flow.
 
-This project explores a very small but practical solution:
+Sometimes the user cannot easily look at the phone or speak continuously.
 
-- one large **OUCH** button
-- four direction buttons: **up / down / left / right**
-- audio cues to help communicate pain quickly
+This project explores a minimal interaction to communicate pain instantly.
 
-## MVP Features
+---
 
-- Large center **OUCH** button
-- Direction buttons for pain adjustment
-- Audio playback for each button
-- Mobile-friendly simple layout
+## Idea
+
+A simple interface with:
+
+- one **large OUCH button** to signal pain
+- four **direction buttons** to adjust the location
+- **audio cues** to communicate quickly with the masseur
+
+Layout:
+    ↑
+
+← OUCH →
+
+    ↓
+
+
+The goal is **fast, low-friction communication**.
+
+---
+
+## Features (MVP)
+
+- Large center **OUCH button**
+- Direction buttons: **up / down / left / right**
+- Audio playback for each signal
+- Mobile-friendly layout
+- Works directly in a browser
+
+---
+
+## Demo
+
+### Mobile
+
+![Mobile Demo](screenshots/mobile-demo.png)
+
+### Desktop
+
+![Desktop Demo](screenshots/desktop-demo.png)
+
+Example scenarios:
+
+- lying face down during massage
+- pain point shifting quickly
+- quick signal without speaking
+
+---
 
 ## Design Decisions
 
 ### Why not React for the first version?
 
-The first version only needs a few buttons and simple audio playback.  
-Using plain HTML, CSS, and JavaScript keeps the setup lightweight and helps validate the core interaction faster.
+The MVP only requires a few buttons and simple audio playback.
 
-### Why start with click input instead of gyroscope or motion?
+Using **plain HTML / CSS / JavaScript** keeps the setup minimal and allows faster validation of the interaction idea.
 
-Click input is more reliable, easier to debug, and easier to test with users.  
-Sensor-based interaction is interesting, but should come after the core product value is confirmed.
+---
 
-### Why start with Web instead of an App?
+### Why start with click input?
 
-A web version has the lowest development and deployment cost.  
-It is faster to build, easier to share, and more suitable for rapid iteration.
+Click input is:
 
-## Future Ideas
+- deterministic
+- easy to debug
+- reliable across devices
 
-- motion / tap / flip detection
+Motion / gyroscope interactions will be explored later after the core interaction is validated.
+
+---
+
+### Why start with Web instead of a mobile app?
+
+A web version has:
+
+- lower development overhead
+- instant deployment
+- easier sharing
+
+Once the interaction model is proven, a mobile app could provide:
+
+- better gesture detection
+- hardware button integration
 - vibration feedback
-- customizable sound packs
-- user feedback and voting
-- donation page
-- mobile app version
+
+---
 
 ## Tech Stack
 
 - HTML
 - CSS
 - JavaScript
-- GitHub Pages
+- GitHub Pages (deployment)
+
+---
+
+## Project Structure
+ouch
+│
+├── index.html
+├── style.css
+├── script.js
+│
+├── assets
+│ ├── ouch.mp3
+│ ├── up.mp3
+│ ├── down.mp3
+│ ├── left.mp3
+│ └── right.mp3
+│
+└── README.md
+
+---
+
+## Roadmap
+
+Possible future improvements:
+
+- vibration feedback
+- motion / tap detection
+- customizable sound packs
+- accessibility improvements
+- usage testing in real massage sessions
+- mobile app version
+
+---
 
 ## Status
 
-Early MVP prototype.
+Current version: **v0.1**
+
+- MVP completed
+- deployed on GitHub Pages
+- mobile layout tested
+
+---
 
 ## Author
 
-Created by [tcy / tangtang1152]
+Created by **tangtang1152**
