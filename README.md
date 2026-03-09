@@ -33,9 +33,7 @@ A simple interface with:
 
 Layout:
     ↑
-
 ← OUCH →
-
     ↓
 
 
