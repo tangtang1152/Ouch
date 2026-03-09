@@ -3,8 +3,20 @@ let motionModeEnabled = false;
 let motionListenerAdded = false;
 const COOLDOWN = 500;
 
+const sounds = {
+  ouch: new Audio("assets/ouch.mp3"),
+  up: new Audio("assets/up.mp3"),
+  down: new Audio("assets/down.mp3"),
+  left: new Audio("assets/left.mp3"),
+  right: new Audio("assets/right.mp3")
+};
+
 function playSound(name) {
-  const audio = new Audio(`assets/${name}.mp3`);
+
+  const audio = sounds[name];
+  if (!audio) return;
+
+  audio.currentTime = 0;
   audio.play();
 }
 
@@ -28,11 +40,13 @@ function handleMotion(event) {
   const magnitude = Math.sqrt(x * x + y * y + z * z);
   const now = Date.now();
 
-  if (magnitude > 24 && now - lastTriggerTime > COOLDOWN) {
-    lastTriggerTime = now;
-    playSound("ouch");
-    updateStatus("检测到动作，已触发 OUCH");
-  }
+if (now - lastTriggerTime < COOLDOWN) return;
+
+if (magnitude > 24) {
+  lastTriggerTime = now;
+  playSound("ouch");
+  updateStatus("检测到动作，已触发 OUCH");
+}
 }
 
 async function toggleMotionMode() {
@@ -45,8 +59,15 @@ async function toggleMotionMode() {
         typeof DeviceMotionEvent.requestPermission === "function"
       ) {
         const permission = await DeviceMotionEvent.requestPermission();
-        if (permission !== "granted") {
-          updateStatus("动作权限未授予");
+        if (permission === "granted") {
+          updateStatus("动作权限已授予");
+        }
+        else if (permission === "denied") {
+          updateStatus("动作权限被拒绝 做完如下步骤或等足够长时间后刷新网页重新授权：IOS至设置-APP-Safari-高级(最下方)-网站数据-搜索github.io-右下角编辑删除网站数据");
+          return;
+        }
+        else {
+          updateStatus("无法获取动作权限");
           return;
         }
       }
