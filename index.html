@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ouch</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <button class="dir-btn" onclick="playSound('up')">↑</button>
+
+    <div class="middle-row">
+      <button class="dir-btn" onclick="playSound('left')">←</button>
+      <button class="ouch-btn" onclick="playSound('ouch')">OUCH</button>
+      <button class="dir-btn" onclick="playSound('right')">→</button>
+    </div>
+
+    <button class="dir-btn" onclick="playSound('down')">↓</button>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
