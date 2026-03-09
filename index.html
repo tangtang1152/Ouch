@@ -18,8 +18,11 @@
 
     <button class="dir-btn" onclick="playSound('down')">↓</button>
     
-    <button class="mode-btn" onclick="enableMotionMode()">开启动作模式</button>
-    <p id="status-text">动作模式未开启</p>  
+    <button id="mode-btn" class="mode-btn" onclick="toggleMotionMode()">
+      开启动作模式
+    </button>
+
+    <p id="status-text">动作模式未开启</p>
 </div>
 
   <script src="script.js"></script>
