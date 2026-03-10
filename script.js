@@ -156,7 +156,7 @@ function handleMotion(event) {
 
   if (now - lastTriggerTime < COOLDOWN) return;
 
-  if (magnitude > 24) {
+  if (magnitude > 20) {
     lastTriggerTime = now;
     playSound("ouch");
     updateStatus("检测到动作，已触发 OUCH");
@@ -194,11 +194,6 @@ async function toggleMotionMode() {
         window.addEventListener("devicemotion", handleMotion);
         motionListenerAdded = true;
       }
-
-      // 进入动作模式时，对 ouch 做一次静音预热
-      const audio = sounds.ouch;
-      audio.muted = true;
-      audio.currentTime = 0;
 
       audio.play()
         .then(() => {
