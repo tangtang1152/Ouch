@@ -194,7 +194,11 @@ async function toggleMotionMode() {
         window.addEventListener("devicemotion", handleMotion);
         motionListenerAdded = true;
       }
-
+      
+      // 进入动作模式时，对 ouch 做一次静音预热 
+      const audio = sounds.ouch; 
+      audio.muted = true; 
+      audio.currentTime = 0;
       audio.play()
         .then(() => {
           audio.pause();
