@@ -14,6 +14,12 @@ const sounds = {
   right: new Audio("assets/right.mp3")
 };
 
+const DEBUG_PANELS = {
+  motion: "debug-text1",
+  audio: "debug-text2",
+  audioEvent: "debug-text3"
+};
+
 //媒体事件监听
 const testAudio = sounds.ouch;
 
@@ -21,12 +27,44 @@ const testAudio = sounds.ouch;
 .forEach(evt => {
   testAudio.addEventListener(evt, () => {
     updateDebug(
+      "audioEvent",
       "event=" + evt +
       " paused=" + testAudio.paused +
-      " time=" + testAudio.currentTime.toFixed(3)
-      ,"debug-text4");
+      " time=" + testAudio.currentTime.toFixed(3),
+      8);
   });
 });
+
+
+function updateStatus(text) {
+  const statusEl = document.getElementById("status-text");
+  if (statusEl) {
+    statusEl.textContent = text;
+  }
+}
+
+function updateDebug(panel, text, maxLines) {
+  if (!DEV_MODE) return;
+
+  const id = DEBUG_PANELS[panel];
+  if (!id) return;
+
+  const el = document.getElementById(id);
+  if (!el) return;
+
+  const time = new Date().toLocaleTimeString();
+  const line = `[${time}] ${text}`;
+
+  let lines = el.textContent ? el.textContent.split("\n") : [];
+  lines.push(line);
+
+  if (maxLines && lines.length > maxLines) {
+    lines = lines.slice(lines.length - maxLines);
+  }
+
+  el.textContent = lines.join("\n");
+  el.scrollTop = el.scrollHeight;
+}
 
 function playSound(name) {
   const audio = sounds[name];
@@ -37,40 +75,32 @@ function playSound(name) {
   }
 
   updateDebug(
+    "audio",
     `before: name=${name} paused=${audio.paused} ` +
     `currentTime=${audio.currentTime.toFixed(3)} ` +
-    `readyState=${audio.readyState} networkState=${audio.networkState}`
-    ,"debug-text3");
+    `readyState=${audio.readyState} networkState=${audio.networkState}`,
+    5
+  );
 
   audio.currentTime = 0;
 
   audio.play()
     .then(() => {
       updateDebug(
+        "audio",
         `play ok: name=${name} paused=${audio.paused} ` +
         `currentTime=${audio.currentTime.toFixed(3)} ` +
-        `readyState=${audio.readyState} networkState=${audio.networkState}`
-        ,"debug-text3");
+        `readyState=${audio.readyState} networkState=${audio.networkState}`,
+        5
+      );
     })
     .catch((err) => {
-      updateDebug(`play fail: ${name} | ${err.name}`,"debug-text3");
+      updateDebug(
+        "audio",
+        `play fail: ${name} | ${err.name}`,
+        5
+      );
     });
-}
-
-function updateStatus(text) {
-  const statusEl = document.getElementById("status-text");
-  if (statusEl) {
-    statusEl.textContent = text;
-  }
-}
-
-function updateDebug(text,string) {
-  if (!DEV_MODE) return;
-
-  const debugEl = document.getElementById(string);
-  if (debugEl) {
-    debugEl.textContent = text;
-  }
 }
 
 function handleMotion(event) {
@@ -96,11 +126,11 @@ function handleMotion(event) {
   }
 
   updateDebug(
+    "motion",
     "motion=" + magnitude.toFixed(2) +
     " cooldown=" + (now - lastTriggerTime) +
-    " trigger count :" + triggerCounter,
-    "debug-text1"
-    );
+    " trigger count=" + triggerCounter,
+    10);
 }
 
 async function toggleMotionMode() {
