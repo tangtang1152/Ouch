@@ -15,13 +15,18 @@ const sounds = {
 };
 
 function playSound(name) {
-
   const audio = sounds[name];
   if (!audio) return;
 
   audio.currentTime = 0;
-   // 直接调用 play()，如果浏览器阻止了自动播放，则捕获错误并忽略(空函数)
-  audio.play().catch(() => {}); 
+
+  audio.play()
+    .then(() => {
+      updateDebug("audio ok: " + name);
+    })
+    .catch((err) => {
+      updateDebug("audio fail: " + name + " | " + err.name);
+    });
 }
 
 function updateStatus(text) {
