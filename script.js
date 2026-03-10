@@ -16,11 +16,6 @@ const ouchPool = [
 ];
 let ouchIndex = 0;
 
-//为ouch对象池中的每个Audio对象添加事件监听器
-ouchPool.forEach((audio, index) => {
-  attachAudioDebugListeners(audio, "ouch[" + index + "]");
-});
-
 const sounds = {
   ouch: new Audio("assets/ouch.mp3"),
   up: new Audio("assets/up.mp3"),
@@ -99,6 +94,11 @@ function attachAudioDebugListeners(audio, label) {
     });
   });
 }
+
+//为ouch对象池中的每个Audio对象添加事件监听器
+ouchPool.forEach((audio, index) => {
+  attachAudioDebugListeners(audio, "ouch[" + index + "]");
+});
 
 function playSound(name) {
   if (name === "ouch") {
