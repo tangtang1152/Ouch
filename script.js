@@ -1,7 +1,10 @@
+const DEV_MODE = window.location.search.includes("dev");
+
 let lastTriggerTime = 0;
 let motionModeEnabled = false;
 let motionListenerAdded = false;
 const COOLDOWN = 500;
+let triggerCounter = 0;
 
 const sounds = {
   ouch: new Audio("assets/ouch.mp3"),
@@ -17,13 +20,23 @@ function playSound(name) {
   if (!audio) return;
 
   audio.currentTime = 0;
-  audio.play();
+   // 直接调用 play()，如果浏览器阻止了自动播放，则捕获错误并忽略(空函数)
+  audio.play().catch(() => {}); 
 }
 
 function updateStatus(text) {
   const statusEl = document.getElementById("status-text");
   if (statusEl) {
     statusEl.textContent = text;
+  }
+}
+
+function updateDebug(text) {
+  if (!DEV_MODE) return;
+
+  const debugEl = document.getElementById("debug-text");
+  if (debugEl) {
+    debugEl.textContent = text;
   }
 }
 
@@ -40,20 +53,25 @@ function handleMotion(event) {
   const magnitude = Math.sqrt(x * x + y * y + z * z);
   const now = Date.now();
 
-if (now - lastTriggerTime < COOLDOWN) return;
+  if (now - lastTriggerTime < COOLDOWN) return;
 
-if (magnitude > 24) {
-  lastTriggerTime = now;
-  playSound("ouch");
-  updateStatus("检测到动作，已触发 OUCH");
-}
+  if (magnitude > 24) {
+    lastTriggerTime = now;
+    playSound("ouch");
+    updateStatus("检测到动作，已触发 OUCH");
+    triggerCounter++;
+  }
+
+  updateDebug(
+  "motion=" + magnitude.toFixed(2) +
+  " cooldown=" + (now - lastTriggerTime) +
+  " trigger count :" + triggerCounter
+  );
 }
 
 async function toggleMotionMode() {
   try {
-    const willEnable = !motionModeEnabled;
-
-    if (willEnable) {
+    if (!motionModeEnabled) {
       if (
         typeof DeviceMotionEvent !== "undefined" &&
         typeof DeviceMotionEvent.requestPermission === "function"
@@ -76,6 +94,13 @@ async function toggleMotionMode() {
         window.addEventListener("devicemotion", handleMotion);
         motionListenerAdded = true;
       }
+
+       // 预加载声音并静音播放以绕过浏览器的自动播放限制
+      const audio = sounds.ouch;
+      audio.muted = true;
+      audio.play().catch(() => {});
+      audio.pause();
+      audio.muted = false;
     }
 
     motionModeEnabled = !motionModeEnabled;
