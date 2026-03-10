@@ -11,13 +11,13 @@ let triggerCounter = 0;
 
 //ouch固定双对象池
 const ouchPool = [
-  new Audio("assets/ouch.mp3"),
-  new Audio("assets/ouch.mp3")
+  new Audio("assets/ouch2.mp3"),
+  new Audio("assets/ouch2.mp3")
 ];
 let ouchIndex = 0;
 
 const sounds = {
-  ouch: new Audio("assets/ouch.mp3"),
+  ouch: new Audio("assets/ouch2.mp3"),
   up: new Audio("assets/up.mp3"),
   down: new Audio("assets/down.mp3"),
   left: new Audio("assets/left.mp3"),
