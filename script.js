@@ -223,7 +223,14 @@ async function toggleMotionMode() {
       updateStatus("动作模式已关闭");
     }
   } catch (error) {
-    console.error(error);
+    console.error("toggleMotionMode failed:", error);
+
+    updateDebug(
+      "motion",
+      "toggle fail: " + (error && error.message ? error.message : String(error)),
+      20
+    );
+    
     updateStatus("切换动作模式失败");
   }
 }
