@@ -1,10 +1,20 @@
 const DEV_MODE = window.location.search.includes("dev");
+if (DEV_MODE) {
+  document.body.classList.add("dev-mode");
+}
 
 let lastTriggerTime = 0;
 let motionModeEnabled = false;
 let motionListenerAdded = false;
 const COOLDOWN = 500;
 let triggerCounter = 0;
+
+//ouch固定双对象池
+const ouchPool = [
+  new Audio("assets/ouch.mp3"),
+  new Audio("assets/ouch.mp3")
+];
+let ouchIndex = 0;
 
 const sounds = {
   ouch: new Audio("assets/ouch.mp3"),
@@ -67,12 +77,43 @@ function updateDebug(panel, text, maxLines) {
 }
 
 function playSound(name) {
+  if (name === "ouch") {
+    const audio = ouchPool[ouchIndex];
+    ouchIndex = (ouchIndex + 1) % ouchPool.length;
+
+    updateDebug(
+      "audio",
+      `before: name=${name} paused=${audio.paused} ` +
+      `currentTime=${audio.currentTime.toFixed(3)} ` +
+      `readyState=${audio.readyState} networkState=${audio.networkState}`,
+      5
+    );
+
+    audio.pause();
+    audio.currentTime = 0;
+
+    audio.play()
+      .then(() => {
+        updateDebug(
+          "audio",
+          `play ok: name=${name} paused=${audio.paused} ` +
+          `currentTime=${audio.currentTime.toFixed(3)} ` +
+          `readyState=${audio.readyState} networkState=${audio.networkState}`,
+          5
+        );
+      })
+      .catch((err) => {
+        updateDebug(
+          "audio",
+          `play fail: ${name} | ${err.name}`,
+          5
+        );
+      });
+    return;
+  }
+
   const audio = sounds[name];
   if (!audio) return;
-
-  if (!audio.paused) {
-    audio.pause();
-  }
 
   updateDebug(
     "audio",
@@ -82,6 +123,7 @@ function playSound(name) {
     5
   );
 
+  audio.pause();
   audio.currentTime = 0;
 
   audio.play()

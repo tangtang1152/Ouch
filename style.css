@@ -63,6 +63,9 @@ body {
 }
 
 .debug-container {
+  display: none;
+}
+body.dev-mode .debug-container {
   display: flex;
   flex-direction: column;
   justify-content: center;
