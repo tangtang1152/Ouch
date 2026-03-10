@@ -61,7 +61,22 @@ body {
   color: #333;
 }
 
-#debug-text {
+#debug-text1 {
+  margin-top: 8px;
+  font-size: 14px;
+  color: #666;
+}
+#debug-text2 {
+  margin-top: 8px;
+  font-size: 14px;
+  color: #666;
+}
+#debug-text3 {
+  margin-top: 8px;
+  font-size: 14px;
+  color: #666;
+}
+#debug-text4 {
   margin-top: 8px;
   font-size: 14px;
   color: #666;

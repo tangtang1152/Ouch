@@ -14,6 +14,20 @@ const sounds = {
   right: new Audio("assets/right.mp3")
 };
 
+//媒体事件监听
+const testAudio = sounds.ouch;
+
+["play","playing","pause","ended","waiting","stalled","canplay","seeked","seeking"]
+.forEach(evt => {
+  testAudio.addEventListener(evt, () => {
+    updateDebug(
+      "event=" + evt +
+      " paused=" + testAudio.paused +
+      " time=" + testAudio.currentTime.toFixed(3)
+      ,"debug-text4");
+  });
+});
+
 function playSound(name) {
   const audio = sounds[name];
   if (!audio) return;
@@ -22,14 +36,24 @@ function playSound(name) {
     audio.pause();
   }
 
+  updateDebug(
+    `before: name=${name} paused=${audio.paused} ` +
+    `currentTime=${audio.currentTime.toFixed(3)} ` +
+    `readyState=${audio.readyState} networkState=${audio.networkState}`
+    ,"debug-text3");
+
   audio.currentTime = 0;
 
   audio.play()
     .then(() => {
-      updateDebug("audio ok: " + name);
+      updateDebug(
+        `play ok: name=${name} paused=${audio.paused} ` +
+        `currentTime=${audio.currentTime.toFixed(3)} ` +
+        `readyState=${audio.readyState} networkState=${audio.networkState}`
+        ,"debug-text3");
     })
     .catch((err) => {
-      updateDebug("audio fail: " + name + " | " + err.name);
+      updateDebug(`play fail: ${name} | ${err.name}`,"debug-text3");
     });
 }
 
@@ -40,10 +64,10 @@ function updateStatus(text) {
   }
 }
 
-function updateDebug(text) {
+function updateDebug(text,string) {
   if (!DEV_MODE) return;
 
-  const debugEl = document.getElementById("debug-text");
+  const debugEl = document.getElementById(string);
   if (debugEl) {
     debugEl.textContent = text;
   }
@@ -72,10 +96,11 @@ function handleMotion(event) {
   }
 
   updateDebug(
-  "motion=" + magnitude.toFixed(2) +
-  " cooldown=" + (now - lastTriggerTime) +
-  " trigger count :" + triggerCounter
-  );
+    "motion=" + magnitude.toFixed(2) +
+    " cooldown=" + (now - lastTriggerTime) +
+    " trigger count :" + triggerCounter,
+    "debug-text1"
+    );
 }
 
 async function toggleMotionMode() {
