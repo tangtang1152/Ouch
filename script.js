@@ -156,7 +156,7 @@ function handleMotion(event) {
 
   if (now - lastTriggerTime < COOLDOWN) return;
 
-  if (magnitude > 20) {
+  if (magnitude > 18) {
     lastTriggerTime = now;
     playSound("ouch");
     updateStatus("检测到动作，已触发 OUCH");
