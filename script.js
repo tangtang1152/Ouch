@@ -18,6 +18,10 @@ function playSound(name) {
   const audio = sounds[name];
   if (!audio) return;
 
+  if (!audio.paused) {
+    audio.pause();
+  }
+
   audio.currentTime = 0;
 
   audio.play()
