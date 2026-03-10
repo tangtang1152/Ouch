@@ -1,20 +1,20 @@
 const DEV_MODE = window.location.search.includes("dev");
+
 if (DEV_MODE) {
   document.body.classList.add("dev-mode");
 }
+
+const DEBUG_PANELS = {
+  motion: "debug-text1",
+  audio: "debug-text2",
+  audioEvent: "debug-text3"
+};
 
 let lastTriggerTime = 0;
 let motionModeEnabled = false;
 let motionListenerAdded = false;
 const COOLDOWN = 500;
 let triggerCounter = 0;
-
-//ouch固定双对象池
-const ouchPool = [
-  new Audio("assets/ouch2.mp3"),
-  new Audio("assets/ouch2.mp3")
-];
-let ouchIndex = 0;
 
 const sounds = {
   ouch: new Audio("assets/ouch2.mp3"),
@@ -24,12 +24,84 @@ const sounds = {
   right: new Audio("assets/right.mp3")
 };
 
-const DEBUG_PANELS = {
-  motion: "debug-text1",
-  audio: "debug-text2",
-  audioEvent: "debug-text3"
-};
+// 页面加载时预加载音频
+Object.values(sounds).forEach(audio => {
+  audio.load();
+});
 
+function formatAudioState(audio) {
+  return (
+    "paused=" + audio.paused +
+    " time=" + audio.currentTime.toFixed(3) +
+    " readyState=" + audio.readyState +
+    " networkState=" + audio.networkState
+  );
+}
+
+function attachAudioDebugListeners(audio, label) {
+  const events = [
+    "play",
+    "playing",
+    "seeking",
+    "seeked",
+    "pause",
+    "ended",
+    "waiting",
+    "stalled",
+    "canplay"
+  ];
+
+  events.forEach(eventName => {
+    audio.addEventListener(eventName, () => {
+      updateDebug(
+        "audioEvent",
+        label + " " + eventName + " " + formatAudioState(audio),
+        40
+      );
+    });
+  });
+}
+
+// 给所有音频对象都挂上生命周期调试监听
+Object.entries(sounds).forEach(([name, audio]) => {
+  attachAudioDebugListeners(audio, name);
+});
+
+function playSound(name) {
+  const audio = sounds[name];
+  if (!audio) return;
+
+  updateDebug(
+    "audio",
+    "before " + name + " " + formatAudioState(audio),
+    20
+  );
+
+  audio.pause();
+  audio.currentTime = 0;
+
+  updateDebug(
+    "audio",
+    "after reset " + name + " " + formatAudioState(audio),
+    20
+  );
+
+  audio.play()
+    .then(() => {
+      updateDebug(
+        "audio",
+        "play ok " + name + " " + formatAudioState(audio),
+        20
+      );
+    })
+    .catch((err) => {
+      updateDebug(
+        "audio",
+        "play fail " + name + " " + err.name + " " + formatAudioState(audio),
+        20
+      );
+    });
+}
 
 function updateStatus(text) {
   const statusEl = document.getElementById("status-text");
@@ -61,113 +133,6 @@ function updateDebug(panel, text, maxLines) {
   el.scrollTop = el.scrollHeight;
 }
 
-function formatAudioState(audio) {
-  return (
-    "paused=" + audio.paused +
-    " time=" + audio.currentTime.toFixed(3) +
-    " readyState=" + audio.readyState +
-    " networkState=" + audio.networkState
-  );
-}
-
-//媒体事件监听
-function attachAudioDebugListeners(audio, label) {
-  const events = [
-    "play",
-    "playing",
-    "seeking",
-    "seeked",
-    "pause",
-    "ended",
-    "waiting",
-    "stalled",
-    "canplay"
-  ];
-
-  events.forEach(eventName => {
-    audio.addEventListener(eventName, () => {
-      updateDebug(
-        "audioEvent",
-        label + " " + eventName + " " + formatAudioState(audio),
-        40
-      );
-    });
-  });
-}
-
-//为ouch对象池中的每个Audio对象添加事件监听器
-ouchPool.forEach((audio, index) => {
-  attachAudioDebugListeners(audio, "ouch[" + index + "]");
-});
-
-function playSound(name) {
-  if (name === "ouch") {
-    const audio = ouchPool[ouchIndex];
-    const currentIndex = ouchIndex;
-
-    ouchIndex = (ouchIndex + 1) % ouchPool.length;
-
-    updateDebug(
-      "audio",
-      "before ouch[" + currentIndex + "] " + formatAudioState(audio),
-      20
-    );
-
-    audio.pause();
-    audio.currentTime = 0;
-
-    updateDebug(
-      "audio",
-      "after reset ouch[" + currentIndex + "] " + formatAudioState(audio),
-      20
-    );
-
-    audio.play()
-      .then(() => {
-        updateDebug(
-          "audio",
-          "play ok ouch[" + currentIndex + "] " + formatAudioState(audio),
-          20
-        );
-      })
-      .catch((err) => {
-        updateDebug(
-          "audio",
-          "play fail ouch[" + currentIndex + "] " + err.name + " " + formatAudioState(audio),
-          20
-        );
-      });
-
-    return;
-  }
-
-  const audio = sounds[name];
-  if (!audio) return;
-
-  updateDebug(
-    "audio",
-    "before " + name + " " + formatAudioState(audio),
-    20
-  );
-  
-  audio.currentTime = 0;
-  audio.play()
-    .then(() => {
-      updateDebug(
-        "audio",
-        "play ok " + name + " " + formatAudioState(audio),
-        20
-      );
-    })
-    .catch((err) => {
-      updateDebug(
-        "audio",
-        "play fail " + name + " " + err.name + " " + formatAudioState(audio),
-        20
-      );
-    });
-}
-
 function handleMotion(event) {
   if (!motionModeEnabled) return;
 
@@ -181,6 +146,14 @@ function handleMotion(event) {
   const magnitude = Math.sqrt(x * x + y * y + z * z);
   const now = Date.now();
 
+  updateDebug(
+    "motion",
+    "motion=" + magnitude.toFixed(2) +
+    " cooldown=" + (now - lastTriggerTime) +
+    " trigger count=" + triggerCounter,
+    10
+  );
+
   if (now - lastTriggerTime < COOLDOWN) return;
 
   if (magnitude > 24) {
@@ -188,14 +161,13 @@ function handleMotion(event) {
     playSound("ouch");
     updateStatus("检测到动作，已触发 OUCH");
     triggerCounter++;
-  }
 
-  updateDebug(
-    "motion",
-    "motion=" + magnitude.toFixed(2) +
-    " cooldown=" + (now - lastTriggerTime) +
-    " trigger count=" + triggerCounter,
-    10);
+    setTimeout(() => {
+      if (motionModeEnabled) {
+        updateStatus("正在监听");
+      }
+    }, 800);
+  }
 }
 
 async function toggleMotionMode() {
@@ -206,14 +178,13 @@ async function toggleMotionMode() {
         typeof DeviceMotionEvent.requestPermission === "function"
       ) {
         const permission = await DeviceMotionEvent.requestPermission();
+
         if (permission === "granted") {
           updateStatus("动作权限已授予");
-        }
-        else if (permission === "denied") {
+        } else if (permission === "denied") {
           updateStatus("动作权限被拒绝 做完如下步骤或等足够长时间后刷新网页重新授权：IOS至设置-APP-Safari-高级(最下方)-网站数据-搜索github.io-右下角编辑删除网站数据");
           return;
-        }
-        else {
+        } else {
           updateStatus("无法获取动作权限");
           return;
         }
@@ -224,12 +195,21 @@ async function toggleMotionMode() {
         motionListenerAdded = true;
       }
 
-       // 预加载声音并静音播放以绕过浏览器的自动播放限制
+      // 进入动作模式时，对 ouch 做一次静音预热
       const audio = sounds.ouch;
       audio.muted = true;
-      audio.play().catch(() => {});
-      audio.pause();
-      audio.muted = false;
+      audio.currentTime = 0;
+
+      audio.play()
+        .then(() => {
+          audio.pause();
+          audio.muted = false;
+          updateDebug("audio", "warmup ok " + formatAudioState(audio), 20);
+        })
+        .catch((err) => {
+          audio.muted = false;
+          updateDebug("audio", "warmup fail " + err.name + " " + formatAudioState(audio), 20);
+        });
     }
 
     motionModeEnabled = !motionModeEnabled;
