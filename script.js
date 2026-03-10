@@ -16,6 +16,11 @@ const ouchPool = [
 ];
 let ouchIndex = 0;
 
+//为ouch对象池中的每个Audio对象添加事件监听器
+ouchPool.forEach((audio, index) => {
+  attachAudioDebugListeners(audio, "ouch[" + index + "]");
+});
+
 const sounds = {
   ouch: new Audio("assets/ouch.mp3"),
   up: new Audio("assets/up.mp3"),
@@ -29,21 +34,6 @@ const DEBUG_PANELS = {
   audio: "debug-text2",
   audioEvent: "debug-text3"
 };
-
-//媒体事件监听
-const testAudio = sounds.ouch;
-
-["play","playing","pause","ended","waiting","stalled","canplay","seeked","seeking"]
-.forEach(evt => {
-  testAudio.addEventListener(evt, () => {
-    updateDebug(
-      "audioEvent",
-      "event=" + evt +
-      " paused=" + testAudio.paused +
-      " time=" + testAudio.currentTime.toFixed(3),
-      8);
-  });
-});
 
 
 function updateStatus(text) {
@@ -76,39 +66,78 @@ function updateDebug(panel, text, maxLines) {
   el.scrollTop = el.scrollHeight;
 }
 
+function formatAudioState(audio) {
+  return (
+    "paused=" + audio.paused +
+    " time=" + audio.currentTime.toFixed(3) +
+    " readyState=" + audio.readyState +
+    " networkState=" + audio.networkState
+  );
+}
+
+//媒体事件监听
+function attachAudioDebugListeners(audio, label) {
+  const events = [
+    "play",
+    "playing",
+    "seeking",
+    "seeked",
+    "pause",
+    "ended",
+    "waiting",
+    "stalled",
+    "canplay"
+  ];
+
+  events.forEach(eventName => {
+    audio.addEventListener(eventName, () => {
+      updateDebug(
+        "audioEvent",
+        label + " " + eventName + " " + formatAudioState(audio),
+        40
+      );
+    });
+  });
+}
+
 function playSound(name) {
   if (name === "ouch") {
     const audio = ouchPool[ouchIndex];
+    const currentIndex = ouchIndex;
+
     ouchIndex = (ouchIndex + 1) % ouchPool.length;
 
     updateDebug(
       "audio",
-      `before: name=${name} paused=${audio.paused} ` +
-      `currentTime=${audio.currentTime.toFixed(3)} ` +
-      `readyState=${audio.readyState} networkState=${audio.networkState}`,
-      5
+      "before ouch[" + currentIndex + "] " + formatAudioState(audio),
+      20
     );
 
     audio.pause();
     audio.currentTime = 0;
 
+    updateDebug(
+      "audio",
+      "after reset ouch[" + currentIndex + "] " + formatAudioState(audio),
+      20
+    );
+
     audio.play()
       .then(() => {
         updateDebug(
           "audio",
-          `play ok: name=${name} paused=${audio.paused} ` +
-          `currentTime=${audio.currentTime.toFixed(3)} ` +
-          `readyState=${audio.readyState} networkState=${audio.networkState}`,
-          5
+          "play ok ouch[" + currentIndex + "] " + formatAudioState(audio),
+          20
         );
       })
       .catch((err) => {
         updateDebug(
           "audio",
-          `play fail: ${name} | ${err.name}`,
-          5
+          "play fail ouch[" + currentIndex + "] " + err.name + " " + formatAudioState(audio),
+          20
         );
       });
+
     return;
   }
 
@@ -117,30 +146,24 @@ function playSound(name) {
 
   updateDebug(
     "audio",
-    `before: name=${name} paused=${audio.paused} ` +
-    `currentTime=${audio.currentTime.toFixed(3)} ` +
-    `readyState=${audio.readyState} networkState=${audio.networkState}`,
-    5
+    "before " + name + " " + formatAudioState(audio),
+    20
   );
-
-  audio.pause();
+  
   audio.currentTime = 0;
-
   audio.play()
     .then(() => {
       updateDebug(
         "audio",
-        `play ok: name=${name} paused=${audio.paused} ` +
-        `currentTime=${audio.currentTime.toFixed(3)} ` +
-        `readyState=${audio.readyState} networkState=${audio.networkState}`,
-        5
+        "play ok " + name + " " + formatAudioState(audio),
+        20
       );
     })
     .catch((err) => {
       updateDebug(
         "audio",
-        `play fail: ${name} | ${err.name}`,
-        5
+        "play fail " + name + " " + err.name + " " + formatAudioState(audio),
+        20
       );
     });
 }
