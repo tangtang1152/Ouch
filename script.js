@@ -238,3 +238,11 @@ async function toggleMotionMode() {
     updateStatus("切换动作模式失败");
   }
 }
+
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker
+      .register("./service-worker.js")
+      .catch(err => console.error("SW register failed:", err));
+  });
+}

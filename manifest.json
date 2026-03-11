@@ -1,0 +1,21 @@
+{
+  "name": "ouch",
+  "short_name": "ouch",
+  "description": "A simple touchless pain signaling tool for massage sessions.",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#f5f5f5",
+  "theme_color": "#d32f2f",
+  "icons": [
+    {
+      "src": "assets/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "assets/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
