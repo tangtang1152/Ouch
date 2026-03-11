@@ -1,4 +1,4 @@
-const CACHE_NAME = "ouch-v0.41";
+const CACHE_NAME = "ouch-v0.42";
 const URLS_TO_CACHE = [
   "./",
   "./index.html",
