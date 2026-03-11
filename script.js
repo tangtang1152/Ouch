@@ -259,3 +259,30 @@ function reportAppMode() {
 }
 
 window.addEventListener("load", reportAppMode);
+
+async function clearServiceWorkerAndCaches() {
+
+  // 1 清除所有 Service Worker
+  if ("serviceWorker" in navigator) {
+    const registrations = await navigator.serviceWorker.getRegistrations();
+
+    for (const reg of registrations) {
+      await reg.unregister();
+      console.log("SW removed:", reg.scope);
+    }
+  }
+
+  // 2 清除 Cache Storage
+  if ("caches" in window) {
+    const keys = await caches.keys();
+
+    for (const key of keys) {
+      await caches.delete(key);
+      console.log("Cache deleted:", key);
+    }
+  }
+
+  console.log("PWA cache cleared");
+}
+
+clearServiceWorkerAndCaches();
