@@ -246,3 +246,16 @@ if ("serviceWorker" in navigator) {
       .catch(err => console.error("SW register failed:", err));
   });
 }
+
+function reportAppMode() {
+  const isStandalone =
+    window.matchMedia("(display-mode: standalone)").matches ||
+    window.navigator.standalone === true;
+
+  const statusEl = document.getElementById("status-text");
+  if (statusEl) {
+    statusEl.textContent += isStandalone ? " | App模式" : " | 浏览器模式";
+  }
+}
+
+window.addEventListener("load", reportAppMode);
