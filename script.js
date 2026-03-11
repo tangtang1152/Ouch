@@ -239,11 +239,22 @@ async function toggleMotionMode() {
   }
 }
 
+// if ("serviceWorker" in navigator) {
+//   window.addEventListener("load", () => {
+//     navigator.serviceWorker
+//       .register("./service-worker.js")
+//       .catch(err => console.error("SW register failed:", err));
+//   });
+// }
+
 if ("serviceWorker" in navigator) {
-  window.addEventListener("load", () => {
-    navigator.serviceWorker
-      .register("./service-worker.js")
-      .catch(err => console.error("SW register failed:", err));
+  navigator.serviceWorker.getRegistrations().then(registrations => {
+    registrations.forEach(reg => reg.unregister());
+  });
+}
+if ("caches" in window) {
+  caches.keys().then(keys => {
+    keys.forEach(key => caches.delete(key));
   });
 }
 
