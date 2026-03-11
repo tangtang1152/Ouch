@@ -29,6 +29,37 @@ Object.values(sounds).forEach(audio => {
   audio.load();
 });
 
+
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.getRegistrations().then(registrations => {
+    registrations.forEach(reg => reg.unregister());
+  });
+}
+if ("caches" in window) {
+  caches.keys().then(keys => {
+    keys.forEach(key => caches.delete(key));
+  });
+}
+
+//standalone 检测
+function reportAppMode() {
+  const isStandalone =
+    window.matchMedia("(display-mode: standalone)").matches ||
+    window.navigator.standalone === true;
+
+  updateStatus(
+    isStandalone ? "当前是 App 模式" : "当前是浏览器模式"
+  );
+
+  updateDebug(
+    "motion",
+    "standalone=" + isStandalone +
+    " navigator.standalone=" + window.navigator.standalone,
+    10
+  );
+}
+window.addEventListener("load", reportAppMode);
+
 function formatAudioState(audio) {
   return (
     "paused=" + audio.paused +
@@ -246,33 +277,3 @@ async function toggleMotionMode() {
 //       .catch(err => console.error("SW register failed:", err));
 //   });
 // }
-
-if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.getRegistrations().then(registrations => {
-    registrations.forEach(reg => reg.unregister());
-  });
-}
-if ("caches" in window) {
-  caches.keys().then(keys => {
-    keys.forEach(key => caches.delete(key));
-  });
-}
-
-//standalone 检测
-function reportAppMode() {
-  const isStandalone =
-    window.matchMedia("(display-mode: standalone)").matches ||
-    window.navigator.standalone === true;
-
-  updateStatus(
-    isStandalone ? "当前是 App 模式" : "当前是浏览器模式"
-  );
-
-  updateDebug(
-    "motion",
-    "standalone=" + isStandalone +
-    " navigator.standalone=" + window.navigator.standalone,
-    10
-  );
-}
-window.addEventListener("load", reportAppMode);
